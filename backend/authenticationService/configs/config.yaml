@@ -1,0 +1,11 @@
+jwt_secret: secret
+
+app_name: auth_service
+environment: dev
+log_level: debug
+
+host: localhost
+port: 33061
+username: root
+password: root
+dbname: auth

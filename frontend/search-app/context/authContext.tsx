@@ -50,15 +50,6 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to add access token
-api.interceptors.request.use((config) => {
-  const token = (window as any).__auth_token__;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 // Add response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
@@ -71,15 +62,12 @@ api.interceptors.response.use(
         const response = await api.get<ApiResponse<AuthResponse>>('/refresh-token');
         const newAccessToken = response.data.data.access_token;
 
-        // Store new access token
         (window as any).__auth_token__ = newAccessToken;
 
-        // Retry original request with new token
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers['retry'] = 'true';
         return api(originalRequest);
       } catch (refreshError) {
-        // If refresh token fails, redirect to login
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

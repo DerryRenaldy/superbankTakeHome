@@ -91,7 +91,7 @@ func (s *Server) StartServer() {
 	public.Handle("/verify-token", middleware.ErrHandler(s.handlerUser.VerifyToken)).Methods(http.MethodGet)
 	// Initialize CORS middleware
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8091"},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8091", "http://localhost:8090"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "Cookie"},

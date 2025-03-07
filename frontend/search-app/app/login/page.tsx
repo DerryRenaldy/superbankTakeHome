@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -61,6 +62,14 @@ export default function Login() {
             </Button>
           </form>
         </CardContent>
+        <div className="text-center">
+          <p className="text-muted-foreground">
+            Need an account?{" "}
+            <Link href="/register" className="underline font-bold text-blue-500" prefetch={false}>
+              Register
+            </Link>
+          </p>
+        </div>
       </Card>
     </div>
   )

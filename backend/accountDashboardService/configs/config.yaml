@@ -1,0 +1,13 @@
+app_name: account_dashboard_service
+environment: dev
+log_level: debug
+
+host: localhost
+port: 33061
+username: root
+password: root
+dbname: account_dashboard
+
+auth:
+  address: http://localhost:8091
+  timeout: 10

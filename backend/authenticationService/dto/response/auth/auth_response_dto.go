@@ -29,3 +29,14 @@ type RenewAccessTokenResponse struct {
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }
 
+type VerifyTokenResponse struct {
+	Status  string      `json:"status"`
+	Message string      `json:"message"`
+	Data    VerifyTokenUserDetail `json:"data"`
+}
+
+type VerifyTokenUserDetail struct {
+	Email  string `json:"email"`
+	Role   string `json:"role"`
+	ExpiredAt time.Time `json:"expired_at"`
+}

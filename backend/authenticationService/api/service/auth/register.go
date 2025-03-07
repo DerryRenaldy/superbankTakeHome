@@ -50,15 +50,21 @@ func (u *UserServiceImpl) Register(ctx context.Context, payload *usersreqdto.Cre
 
 	user.Role = roleName
 
-	refreshToken, refreshClaims, err := u.tokenMaker.GenerateTokenJWT(user, time.Hour*24)
+	refreshToken, refreshClaims, err := u.tokenMaker.GenerateTokenJWT(user, time.Minute * time.Duration(u.cfg.TokenCache.RefreshTokenTimeout))
 	if err != nil {
 		u.l.Errorf("[%s] = Fail to generate JWT token! : %s", functionName, errors.New("jwt token not created"))
 		return nil, err
 	}
 
-	accessToken, accessClaims, err := u.tokenMaker.GenerateTokenJWT(user, time.Minute*15)
+	accessToken, accessClaims, err := u.tokenMaker.GenerateTokenJWT(user, time.Minute * time.Duration(u.cfg.TokenCache.AccessTokenTimeout))
 	if err != nil {
 		u.l.Errorf("[%s] = Fail to generate JWT token! : %s", functionName, errors.New("jwt token not created"))
+		return nil, err
+	}
+
+	err = u.StoreTokenInCache(ctx, user.Email, accessToken)
+	if err != nil {
+		u.l.Errorf("[%s] = Fail to store token in cache! : %s", functionName, err.Error())
 		return nil, err
 	}
 
@@ -82,4 +88,22 @@ func (u *UserServiceImpl) Register(ctx context.Context, payload *usersreqdto.Cre
 	}
 
 	return result, nil
+}
+
+func (u *UserServiceImpl) StoreTokenInCache(ctx context.Context, userEmail string, accessToken string) error {
+	functionName := "UserServiceImpl.StoreTokenInCache"
+
+	err := u.tokenCache.DeleteToken(ctx, fmt.Sprintf("access_token:%s", userEmail))
+	if err != nil {
+		u.l.Errorf("[%s] = Fail to delete token from cache! : %s", functionName, err.Error())
+		return cError.GetError(cError.InternalServerError, err)
+	}
+
+	err = u.tokenCache.SetToken(ctx, fmt.Sprintf("access_token:%s", userEmail), accessToken, u.cfg.TokenCache.AccessTokenTimeout)
+	if err != nil {
+		u.l.Errorf("[%s] = Fail to store token in cache! : %s", functionName, err.Error())
+		return cError.GetError(cError.InternalServerError, err)
+	}
+	
+	return nil
 }

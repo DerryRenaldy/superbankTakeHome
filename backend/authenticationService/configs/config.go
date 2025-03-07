@@ -1,16 +1,20 @@
 package config
 
 import (
+	"authenticationService/pkgs/database/redis"
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"os"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
 	JWTSecret string        `mapstructure:"jwt_secret"`
 	App       Logger        `mapstructure:",squash"`
 	DB        MySQLDatabase `mapstructure:",squash"`
+	Redis     redis.Config  `mapstructure:"redis"`
+	TokenCache redis.TokenCache `mapstructure:"token_cache"`
 }
 
 var Cfg *Config

@@ -4,10 +4,13 @@ import (
 	usershandler "authenticationService/api/handler"
 	usersservice "authenticationService/api/service/auth"
 	config "authenticationService/configs"
+	"authenticationService/constants"
 	utils "authenticationService/pkgs"
 	"authenticationService/pkgs/database/mysql"
+	"authenticationService/pkgs/database/redis"
 	"authenticationService/pkgs/token"
 	"authenticationService/server/middleware"
+	authcachestore "authenticationService/stores/auth_cache"
 	usersrepo "authenticationService/stores/mysql/auth"
 	"database/sql"
 	"fmt"
@@ -44,6 +47,19 @@ func NewServer(cfg *config.Config, log logger.ILogger) *Server {
 }
 
 func (s *Server) RegisterServer() {
+	redisClient, err := redis.ConnectRedis(
+		&redis.Config{
+			Addr:     s.cfg.Redis.Addr,
+			Timeout:  s.cfg.Redis.Timeout,
+			PoolSize: s.cfg.Redis.PoolSize,
+		},
+	)
+	if err != nil {
+		s.log.Fatalf("Error while connecting to redis : ", err)
+	}
+
+	authRedisClient := authcachestore.New(redisClient, constants.RedisNamespace, s.cfg.Redis.Timeout)
+	
 	// Initiate SQL Connection
 	dbConn := mysql.NewConnection(s.log)
 	if dbConn == nil {
@@ -57,7 +73,7 @@ func (s *Server) RegisterServer() {
 	utility := utils.NewUtilsImpl(s.log)
 	userRepo := usersrepo.NewUserRepoImpl(db, s.log)
 	s.tokenMaker = token.NewJWTImpl(s.cfg.JWTSecret)
-	s.serviceUser = usersservice.NewUserServiceImpl(userRepo, utility, s.tokenMaker, s.log)
+	s.serviceUser = usersservice.NewUserServiceImpl(userRepo, utility, s.tokenMaker, s.log, authRedisClient, s.cfg)
 	s.handlerUser = usershandler.NewUserHandlerImpl(s.serviceUser, s.log)
 }
 
@@ -72,6 +88,7 @@ func (s *Server) StartServer() {
 	public.Handle("/login", middleware.ErrHandler(s.handlerUser.Login)).Methods(http.MethodPost)
 	public.Handle("/logout", middleware.ErrHandler(s.handlerUser.Logout)).Methods(http.MethodDelete)
 	public.Handle("/refresh-token", middleware.ErrHandler(s.handlerUser.RefreshToken)).Methods(http.MethodGet)
+	public.Handle("/verify-token", middleware.ErrHandler(s.handlerUser.VerifyToken)).Methods(http.MethodGet)
 	// Initialize CORS middleware
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8091"},

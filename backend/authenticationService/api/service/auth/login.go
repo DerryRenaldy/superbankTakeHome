@@ -29,15 +29,21 @@ func (u *UserServiceImpl) Login(ctx context.Context, payload *usersreqdto.LoginR
 		return nil, cError.GetError(cError.InvalidRequestError, errors.New("password not match"))
 	}
 
-	refreshToken, refreshClaims, err := u.tokenMaker.GenerateTokenJWT(userData, time.Hour*24)
+	refreshToken, refreshClaims, err := u.tokenMaker.GenerateTokenJWT(userData, time.Minute * time.Duration(u.cfg.TokenCache.RefreshTokenTimeout))
 	if err != nil {
 		u.l.Errorf("[%s] = Fail to generate JWT token! : %s", functionName, errors.New("jwt token not created"))
 		return nil, err
 	}
 
-	accessToken, accessClaims, err := u.tokenMaker.GenerateTokenJWT(userData, time.Minute*15)
+	accessToken, accessClaims, err := u.tokenMaker.GenerateTokenJWT(userData, time.Minute * time.Duration(u.cfg.TokenCache.AccessTokenTimeout))
 	if err != nil {
 		u.l.Errorf("[%s] = Fail to generate JWT token! : %s", functionName, errors.New("jwt token not created"))
+		return nil, err
+	}
+
+	err = u.StoreTokenInCache(ctx, userData.Email, accessToken)
+	if err != nil {
+		u.l.Errorf("[%s] = Fail to store token in cache! : %s", functionName, err.Error())
 		return nil, err
 	}
 

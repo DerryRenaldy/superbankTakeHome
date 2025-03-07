@@ -12,13 +12,14 @@ func (u *UserHandlerImpl) RefreshToken(w http.ResponseWriter, r *http.Request) e
 
 	ctx := r.Context()
 
-	refreshToken := r.URL.Query().Get("token")
-	if refreshToken == "" {
+	// Get refresh token from cookie
+	refreshToken, err := r.Cookie("refresh_token")
+	if err != nil {
 		u.l.Errorf("[%s] = Refresh token is required! : %s", functionName, errors.New("refresh token is required"))
-		return cError.GetError(cError.BadRequestError, errors.New("refresh token is required"))
+		return cError.GetError(cError.UnauthorizedError, errors.New("no refresh token provided"))
 	}
 
-	result, err := u.userService.RefreshToken(ctx, refreshToken)
+	result, err := u.userService.RefreshToken(ctx, refreshToken.Value)
 	if err != nil {
 		return err
 	}

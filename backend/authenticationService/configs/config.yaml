@@ -9,3 +9,12 @@ port: 33061
 username: root
 password: root
 dbname: auth
+
+redis:
+  address: redis://localhost:6379/1
+  timeout: 3
+  pool_size: 100
+
+token_cache:
+  access_token_timeout: 15
+  refresh_token_timeout: 60

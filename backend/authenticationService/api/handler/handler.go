@@ -24,6 +24,7 @@ type IHandler interface {
 	Login(w http.ResponseWriter, r *http.Request) error
 	Logout(w http.ResponseWriter, r *http.Request) error
 	RefreshToken(w http.ResponseWriter, r *http.Request) error
+	VerifyToken(w http.ResponseWriter, r *http.Request) error
 }
 
 var _ IHandler = (*UserHandlerImpl)(nil)

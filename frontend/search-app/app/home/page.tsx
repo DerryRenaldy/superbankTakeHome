@@ -40,13 +40,13 @@ export default function Home() {
     const { user, logout } = useAuth();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            router.push("/login");
-        }
-    }, [user, router]);
+    // useEffect(() => {
+    //     if (!user) {
+    //         router.push("/login");
+    //     }
+    // }, [user, router]);
 
-    return user ? (
+    return (
         <div className="p-4 max-w-lg mx-auto">
             <h1 className="text-xl font-bold mb-4">Customer Search</h1>
             <Input
@@ -69,5 +69,5 @@ export default function Home() {
                 <button onClick={logout} className="mt-4 bg-red-500 text-white px-4 py-2">Logout</button>
             </div>
         </div>
-    ) : null;
+    );
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func (u *UserRepoImpl) GetUserByEmail(ctx context.Context, userEmail string) (*usersrespdto.UserResponse, error) {
-	functionName := "UserRepoImpl.GetUserById"
+	functionName := "UserRepoImpl.GetUserByEmail"
 
 	tx, err := u.DB.BeginTx(ctx, nil)
 	if err != nil {

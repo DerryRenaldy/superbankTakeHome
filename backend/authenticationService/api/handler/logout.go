@@ -9,9 +9,12 @@ import (
 )
 
 func (u *UserHandlerImpl) Logout(w http.ResponseWriter, r *http.Request) error {
+	functionName := "UserHandlerImpl.Logout"
+
 	// Get refresh token from cookie
 	refreshCookie, err := r.Cookie("refresh_token")
 	if err != nil {
+		u.l.Errorf("[%s] = Refresh token is required! : %s", functionName, errors.New("no refresh token provided"))
 		return cError.GetError(cError.UnauthorizedError, errors.New("no refresh token provided"))
 	}
 

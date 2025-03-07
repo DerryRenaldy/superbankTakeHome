@@ -5,6 +5,7 @@ import (
 	cError "authenticationService/pkgs/errors"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -16,6 +17,8 @@ func (u *UserServiceImpl) RefreshToken(ctx context.Context, refreshToken string)
 		u.l.Errorf("[%s] = Fail to get session detail! : %s", functionName, err.Error())
 		return nil, err
 	}
+
+	fmt.Println("session", session)
 
 	user, err := u.userRepo.GetUserById(ctx, session.UserID)
 	if err != nil {
@@ -36,6 +39,12 @@ func (u *UserServiceImpl) RefreshToken(ctx context.Context, refreshToken string)
 	accessToken, accessClaims, err := u.tokenMaker.GenerateTokenJWT(user, time.Minute*15)
 	if err != nil {
 		u.l.Errorf("[%s] = Fail to generate JWT token! : %s", functionName, errors.New("jwt token not created"))
+		return nil, err
+	}
+
+	err = u.StoreTokenInCache(ctx, user.Email, accessToken)
+	if err != nil {
+		u.l.Errorf("[%s] = Fail to store token in cache! : %s", functionName, err.Error())
 		return nil, err
 	}
 

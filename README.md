@@ -4,6 +4,14 @@
 
 This project consists of a multi-service application using Docker Compose. It includes a PostgreSQL database, Redis cache, authentication service, and account dashboard service, along with a frontend application.
 
+## Project Decisions
+
+- PostgreSQL is used as the database for storing user and account data.
+- Redis is used for caching purposes, improving the performance of the authentication service and dashboard service.
+- The authentication service handles login and token generation for secure access to the system.
+- The account dashboard service provides the dashboard data for the user.
+- The frontend application is built using Next Js and communicates with the backend services via HTTP API endpoints.
+
 ## Prerequisites
 
 - Docker

@@ -30,7 +30,7 @@ export default function Login() {
             <Card className="mx-auto max-w-sm">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold">Register</CardTitle>
-                    <CardDescription>Enter your email and password to login to your account</CardDescription>
+                    <CardDescription>Enter your email and password to register a new account</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">

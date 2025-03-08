@@ -4,7 +4,9 @@ import (
 	cError "accountDashboardService/pkgs/errors"
 	authagent "accountDashboardService/stores/agents/auth_agent"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/DerryRenaldy/logger/logger"
 )
@@ -16,9 +18,11 @@ type AuthMiddleware struct {
 
 func (a *AuthMiddleware) VerifyToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authToken := r.Header.Get("Authorization")
-
+		authToken := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+		
 		w.Header().Set("Content-Type", "application/json")
+
+		fmt.Println("Get Header : ", authToken)
 
 		ctx := r.Context()
 

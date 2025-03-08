@@ -67,20 +67,20 @@ func (s *Server) RegisterServer() {
 func (s *Server) StartServer() {
 	addr := ":8090"
 
-	r := mux.NewRouter()
-	r.Use(s.authMiddleware.VerifyToken)
-
-	public := r.PathPrefix("/v1/dashboard").Subrouter()
-	public.Handle("/accounts", middleware.ErrHandler(s.handlerUser.GetListAccount)).Methods(http.MethodGet)
-
 	// Initialize CORS middleware
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8090"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "Authorization", "Cookie"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "Cookie", "retry"},
 		Debug:           true,
 	})
+
+	r := mux.NewRouter()
+	r.Use(s.authMiddleware.VerifyToken)
+
+	public := r.PathPrefix("/v1/dashboard").Subrouter()
+	public.Handle("/accounts", middleware.ErrHandler(s.handlerUser.GetListAccount)).Methods(http.MethodGet)
 
 	// Wrap the router with the CORS handler
 	handler := c.Handler(r)

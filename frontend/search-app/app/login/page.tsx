@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { useAuth } from "@/context/authContext"
+import { useAuth } from "@/context/auth/authContext"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"

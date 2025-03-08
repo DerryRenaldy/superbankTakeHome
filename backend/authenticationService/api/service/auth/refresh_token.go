@@ -49,6 +49,7 @@ func (u *UserServiceImpl) RefreshToken(ctx context.Context, refreshToken string)
 	}
 
 	result := &usersrespdto.RenewAccessTokenResponse{
+		UserEmail:            user.Email,
 		AccessToken:          accessToken,
 		AccessTokenExpiresAt: accessClaims.RegisteredClaims.ExpiresAt.Time,
 	}

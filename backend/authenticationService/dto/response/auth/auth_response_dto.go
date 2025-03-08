@@ -25,6 +25,7 @@ type Session struct {
 }
 
 type RenewAccessTokenResponse struct {
+	UserEmail            string    `json:"user_email"`
 	AccessToken          string    `json:"access_token"`
 	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
 }

@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Customer } from "@/types/customers";
 
@@ -61,6 +61,9 @@ const CustomerCard: React.FC<CustomerCardProps> = ({ customer }) => {
 };
 
 const CustomersList: React.FC<CustomersListProps> = ({ customers }) => {
+    useEffect(() => {
+        console.log("Customer", customers)
+    }, []);
     return (
         <div className="flex flex-wrap justify-center gap-4">
             {customers.map((customer, index) => (

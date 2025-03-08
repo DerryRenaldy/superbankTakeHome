@@ -17,4 +17,4 @@ redis:
 
 token_cache:
   access_token_timeout: 15
-  refresh_token_timeout: 60
+  refresh_token_timeout: 1440

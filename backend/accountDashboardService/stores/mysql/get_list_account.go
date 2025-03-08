@@ -13,9 +13,8 @@ func (r *RepoImpl) GetListAccount(ctx context.Context, req *reqdto.AccountListRe
 	functionName := "RepoImpl.GetListAccount"
 
 	whereConditions := ""
-
 	if len(req.CustomerName) != 0 {
-		whereConditions += fmt.Sprintf(" WHERE c.name LIKE ('%s')", req.CustomerName)
+		whereConditions += fmt.Sprintf("AND c.name LIKE '%%%s%%'\n", req.CustomerName)
 	}
 
 	// Validate pagination parameters

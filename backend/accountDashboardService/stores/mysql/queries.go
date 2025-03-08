@@ -3,7 +3,6 @@ package store
 const (
 	QueryGetListAccount = `SELECT 
     c.name, 
-    -- Bank Accounts as JSON Array
     COALESCE(
         JSON_ARRAYAGG(
             JSON_OBJECT(
@@ -14,7 +13,6 @@ const (
         ), '[]'
     ) AS bank_accounts,
     
-    -- Pockets as JSON Array
     COALESCE(
         JSON_ARRAYAGG(
             JSON_OBJECT(
@@ -25,7 +23,6 @@ const (
         ), '[]'
     ) AS pockets,
     
-    -- Term Deposits as JSON Array
     COALESCE(
         JSON_ARRAYAGG(
             JSON_OBJECT(
@@ -45,11 +42,12 @@ LEFT JOIN
     account_dashboard.pockets p ON c.customer_id = p.customer_id
 LEFT JOIN 
     account_dashboard.term_deposits td ON c.customer_id = td.customer_id
+WHERE 1 %s
 GROUP BY 
-    c.customer_id
-%s
+    c.customer_id,  c.name
 LIMIT %d
 OFFSET %d;`
-	QueryGetTotalCount = `SELECT COUNT(*) FROM account_dashboard.customers %s;`
+
+	QueryGetTotalCount = `SELECT COUNT(*) FROM account_dashboard.customers c WHERE 1 %s;`
 )
 

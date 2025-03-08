@@ -19,7 +19,7 @@ func (u *UserRepoImpl) GetUserById(ctx context.Context, userId int)(*usersrespdt
 
 	result := new(usersrespdto.UserResponse)
 
-	err = tx.QueryRowContext(ctx, QueryGetOneUserByEmail, userId).Scan(&result.UserID, &result.Role, &result.Email, &result.PasswordHash)
+	err = tx.QueryRowContext(ctx, QueryGetOneUserById, userId).Scan(&result.UserID, &result.Role, &result.Email, &result.PasswordHash)
 	if err != nil {
 		u.l.Debugf("[%s] = While Executing QueryRowContext : %s", functionName, err.Error())
 

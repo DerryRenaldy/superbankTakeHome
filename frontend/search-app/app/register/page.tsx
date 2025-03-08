@@ -1,24 +1,25 @@
 "use client"
 import { useState } from "react"
-import { useAuth } from "@/context/authContext"
+import { useAuth } from "@/context/auth/authContext"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { register } from "module"
 
 export default function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
-    const { login } = useAuth()
+    const { register } = useAuth()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError("")
 
         try {
-            await login(email, password)
+            await register(email, password)
         } catch (err) {
             setError(err instanceof Error ? err.message : "An error occurred")
         }

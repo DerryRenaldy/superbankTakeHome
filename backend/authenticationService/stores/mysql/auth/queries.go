@@ -9,5 +9,5 @@ const (
 	QueryAssignRoleToUser     = "INSERT INTO auth.user_roles (user_id, role_id) VALUES (?, ?);"
 	QueryGetRoleName          = "SELECT r.role_name FROM auth.roles r WHERE r.role_id = ?;"
 	QueryGetSessionDetail     = "SELECT s.user_id, s.refresh_token, s.is_revoked, s.expires_at FROM auth.sessions s WHERE s.refresh_token = ?;"
-	QueryGetOneUserById       = "SELECT r.role_name, u.email, u.password_hash FROM auth.users AS u INNER JOIN auth.user_roles ur ON u.user_id = ur.user_id INNER JOIN auth.roles r ON ur.role_id = r.role_id WHERE u.user_id =?;"
+	QueryGetOneUserById       = "SELECT u.user_id, r.role_name, u.email, u.password_hash FROM auth.users AS u INNER JOIN auth.user_roles ur ON u.user_id = ur.user_id INNER JOIN auth.roles r ON ur.role_id = r.role_id WHERE u.user_id =?;"
 )

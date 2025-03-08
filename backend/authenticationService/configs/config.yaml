@@ -4,14 +4,14 @@ app_name: auth_service
 environment: dev
 log_level: debug
 
-host: localhost
-port: 54321
+host: postgres_db_compose
+port: 5432
 username: root
 password: root
 dbname: postgres
 
 redis:
-  address: redis://localhost:6379/1
+  address: redis://redis_db_compose:6379/1
   timeout: 3
   pool_size: 100
 

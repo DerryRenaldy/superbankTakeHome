@@ -2,7 +2,7 @@
 
 import { ApiResponse, AuthResponse } from "@/types/auth";
 import axios, { AxiosError } from "axios";
-import router from "next/navigation";
+import router from "next/router";
 
 export const authApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_AUTH_API_URL,
@@ -40,7 +40,7 @@ authApi.interceptors.response.use(
       } catch (refreshError) {
         console.error("Token refresh failed. Redirecting to login...");
         localStorage.removeItem("auth_token");
-        router.redirect("/login");
+        router.push("/login");
         return Promise.reject(refreshError);
       }
     }

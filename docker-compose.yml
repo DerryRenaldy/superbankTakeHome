@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  postgres_db_compose:
+    image: postgres:latest
+    container_name: dashboard_db_compose
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: postgres
+    ports:
+      - "54321:5432"
+    volumes:
+      - ./postgres_db_volume:/var/lib/postgresql/data
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:latest
+    container_name: redis_db_compose
+    restart: always
+    ports:
+      - "6379:6379"
+
+  account_dashboard_service:
+    build: ./backend/accountDashboardService
+    container_name: account_dashboard_service
+    depends_on:
+      - postgres_db_compose
+    environment:
+      DATABASE_URL: "host=postgres_db_compose port=5432 user=root password=root dbname=postgres sslmode=disable search_path=account_dashboard"
+      REDIS_URL: "redis://redis_db_compose:6379/1"
+    ports:
+      - "8090:8090"
+
+  authentication_service:
+    build: ./backend/authenticationService
+    container_name: authentication_service
+    depends_on:
+      - postgres_db_compose
+      - redis
+    environment:
+      DATABASE_URL: "host=postgres_db_compose port=5432 user=root password=root dbname=postgres sslmode=disable search_path=auth"
+    ports:
+      - "8091:8091"
+
+  frontend:
+    build: ./frontend/search-app
+    container_name: frontend_app
+    depends_on:
+      - account_dashboard_service
+      - authentication_service
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

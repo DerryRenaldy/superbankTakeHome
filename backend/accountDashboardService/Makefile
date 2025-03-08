@@ -8,7 +8,7 @@ DOCKER_CMD_POSTGRESQL = docker run -it --name dashboard_db \
     -v ~/Desktop/DatabaseDocker/AuthDB:/var/lib/postgresql/data \
     -p 54321:5432 \
     postgres:latest
-
+docker run -itd --name test-redis -p 6379:6379 redis
 # Default target
 all: build
 

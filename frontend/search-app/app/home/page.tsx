@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import CustomersList from "@/components/home_component/customerList";
 import { Customer } from "@/types/customers";
 import { dashboardApi } from "@/lib/api/axiosDashboard";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth/authContext";
 import { ApiResponseDashboard } from "@/types/dashboard";
 import {
@@ -36,7 +36,7 @@ const CustomersPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1); // New state for current page
     const [totalCount, setTotalCount] = useState<number>(0); // New state for total count
-    const searchParams = useSearchParams();
+    // const searchParams = useSearchParams();
     const { user, logout } = useAuth();
     const [search, setSearch] = useState<string>("");
     const [debouncedSearch] = useDebounce(search, 500);
@@ -69,7 +69,8 @@ const CustomersPage: React.FC = () => {
         };
 
         fetchCustomers();
-    }, [searchParams, currentPage, pageSize, search]);
+    }, [currentPage, pageSize, search]);
+    //searchParams, 
 
     const handlePageChange = (page: number) => {
         const maxPage = Math.ceil(totalCount / pageSize);

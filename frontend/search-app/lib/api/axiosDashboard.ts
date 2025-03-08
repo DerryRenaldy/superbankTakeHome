@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
-import router from "next/navigation";
+import router from "next/router";
+
 export const dashboardApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_DASHBOARD_API_URL,
   withCredentials: true,
@@ -55,7 +56,7 @@ dashboardApi.interceptors.response.use(
       }
 
       localStorage.removeItem("auth_token");
-      router.redirect("/login");
+      router.push("/login");
     }
 
     return Promise.reject(error);

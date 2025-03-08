@@ -43,6 +43,7 @@ func (db *Connection) Connect() *sql.DB {
 
 	// Retry connection until successful
 	for open.Ping() != nil {
+		fmt.Println(dnsAddress)
 		db.log.Info("Attempting to connect to DB...")
 		time.Sleep(5 * time.Second)
 	}

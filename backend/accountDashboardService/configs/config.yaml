@@ -2,12 +2,12 @@ app_name: account_dashboard_service
 environment: dev
 log_level: debug
 
-host: localhost
-port: 54321
+host: postgres_db_compose
+port: 5432
 username: root
 password: root
 dbname: postgres
 
 auth:
-  address: http://localhost:8091
+  address: http://authentication_service:8091
   timeout: 10

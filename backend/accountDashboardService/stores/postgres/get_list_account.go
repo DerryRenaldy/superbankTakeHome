@@ -5,6 +5,7 @@ import (
 	respdto "accountDashboardService/dto/response"
 	cError "accountDashboardService/pkgs/errors"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 )
@@ -12,9 +13,9 @@ import (
 func (r *RepoImpl) GetListAccount(ctx context.Context, req *reqdto.AccountListRequest) (*respdto.AccountListResponse, error) {
 	functionName := "RepoImpl.GetListAccount"
 
-	whereConditions := ""
+	var whereConditions = ""
 	if len(req.CustomerName) != 0 {
-		whereConditions += fmt.Sprintf("AND c.name LIKE '%%%s%%'\n", req.CustomerName)
+		whereConditions = fmt.Sprintf("AND c.name ILIKE '%%%s%%'", req.CustomerName)
 	}
 
 	// Validate pagination parameters
@@ -37,55 +38,67 @@ func (r *RepoImpl) GetListAccount(ctx context.Context, req *reqdto.AccountListRe
 	rows, err := tx.QueryContext(ctx, queryString)
 	if err != nil {
 		r.l.Debugf("[%s] = While Querying Accounts : %s", functionName, err.Error())
+		tx.Rollback()
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var customer respdto.Customer
-		var bankAccountsJSON, pocketsJSON, termDepositsJSON string
+		var bankAccountsJSON, pocketsJSON, termDepositsJSON sql.NullString
 
 		if err := rows.Scan(&customer.Name, &bankAccountsJSON, &pocketsJSON, &termDepositsJSON); err != nil {
 			r.l.Debugf("[%s] = While Scanning Row : %s", functionName, err.Error())
+			tx.Rollback()
 			return nil, cError.GetError(cError.InternalServerError, err)
 		}
 
-		// Unmarshal JSON data into the struct
-		if err := json.Unmarshal([]byte(bankAccountsJSON), &customer.BankAccounts); err != nil {
-			r.l.Debugf("[%s] = While Unmarshalling Bank Accounts : %s", functionName, err.Error())
-			return nil, cError.GetError(cError.InternalServerError, err)
+		if bankAccountsJSON.Valid {
+			if err := json.Unmarshal([]byte(bankAccountsJSON.String), &customer.BankAccounts); err != nil {
+				r.l.Debugf("[%s] = While Unmarshalling Bank Accounts : %s", functionName, err.Error())
+				tx.Rollback()
+				return nil, cError.GetError(cError.InternalServerError, err)
+			}
 		}
-		if err := json.Unmarshal([]byte(pocketsJSON), &customer.Pockets); err != nil {
-			r.l.Debugf("[%s] = While Unmarshalling Pockets : %s", functionName, err.Error())
-			return nil, cError.GetError(cError.InternalServerError, err)
+		if pocketsJSON.Valid {
+			if err := json.Unmarshal([]byte(pocketsJSON.String), &customer.Pockets); err != nil {
+				r.l.Debugf("[%s] = While Unmarshalling Pockets : %s", functionName, err.Error())
+				tx.Rollback()
+				return nil, cError.GetError(cError.InternalServerError, err)
+			}
 		}
-		if err := json.Unmarshal([]byte(termDepositsJSON), &customer.TermDeposits); err != nil {
-			r.l.Debugf("[%s] = While Unmarshalling Term Deposits : %s", functionName, err.Error())
-			return nil, cError.GetError(cError.InternalServerError, err)
+		if termDepositsJSON.Valid {
+			if err := json.Unmarshal([]byte(termDepositsJSON.String), &customer.TermDeposits); err != nil {
+				r.l.Debugf("[%s] = While Unmarshalling Term Deposits : %s", functionName, err.Error())
+				tx.Rollback()
+				return nil, cError.GetError(cError.InternalServerError, err)
+			}
 		}
 
 		result = append(result, customer)
 	}
 
-	// Query to get the total count of accounts
 	var totalCount int
 	countQuery := fmt.Sprintf(QueryGetTotalCount, whereConditions)
 	if err := tx.QueryRowContext(ctx, countQuery).Scan(&totalCount); err != nil {
 		r.l.Debugf("[%s] = While Querying Total Count : %s", functionName, err.Error())
+		tx.Rollback()
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 
-	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		r.l.Debugf("[%s] = While Committing Transaction : %s", functionName, err.Error())
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 
-	finalResult := respdto.AccountListResponse{}
-	finalResult.AccountListPagination.Page = req.Page
-	finalResult.AccountListPagination.Count = req.Count
-	finalResult.AccountListPagination.TotalCount = totalCount
-	finalResult.AccountList = result
+	finalResult := respdto.AccountListResponse{
+		AccountListPagination: respdto.AccountListPagination{
+			Page:       req.Page,
+			Count:      req.Count,
+			TotalCount: totalCount,
+		},
+		AccountList: result,
+	}
 
 	return &finalResult, nil
 }

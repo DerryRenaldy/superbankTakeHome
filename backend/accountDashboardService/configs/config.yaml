@@ -3,10 +3,10 @@ environment: dev
 log_level: debug
 
 host: localhost
-port: 33061
+port: 54321
 username: root
 password: root
-dbname: account_dashboard
+dbname: postgres
 
 auth:
   address: http://localhost:8091

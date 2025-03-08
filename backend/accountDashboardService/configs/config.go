@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	App       Logger        `mapstructure:",squash"`
-	DB        MySQLDatabase `mapstructure:",squash"`
+	DB        PostgresDatabase `mapstructure:",squash"`
 	Auth      AuthConfig    `mapstructure:"auth"`
 }
 

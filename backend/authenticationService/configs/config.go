@@ -12,7 +12,7 @@ import (
 type Config struct {
 	JWTSecret string        `mapstructure:"jwt_secret"`
 	App       Logger        `mapstructure:",squash"`
-	DB        MySQLDatabase `mapstructure:",squash"`
+	DB        PostgresDatabase `mapstructure:",squash"`
 	Redis     redis.Config  `mapstructure:"redis"`
 	TokenCache redis.TokenCache `mapstructure:"token_cache"`
 }

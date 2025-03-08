@@ -8,7 +8,7 @@ import (
 	"errors"
 )
 
-func (u *UserRepoImpl) GetUserById(ctx context.Context, userId int)(*usersrespdto.UserResponse, error) {
+func (u *UserRepoImpl) GetUserById(ctx context.Context, userId int) (*usersrespdto.UserResponse, error) {
 	functionName := "UserRepoImpl.GetUserById"
 
 	tx, err := u.DB.BeginTx(ctx, nil)
@@ -19,7 +19,12 @@ func (u *UserRepoImpl) GetUserById(ctx context.Context, userId int)(*usersrespdt
 
 	result := new(usersrespdto.UserResponse)
 
-	err = tx.QueryRowContext(ctx, QueryGetOneUserById, userId).Scan(&result.UserID, &result.Role, &result.Email, &result.PasswordHash)
+	err = tx.QueryRowContext(ctx, QueryGetOneUserById, userId).Scan(
+		&result.UserID, 
+		&result.Role, 
+		&result.Email, 
+		&result.PasswordHash,
+	)
 	if err != nil {
 		u.l.Debugf("[%s] = While Executing QueryRowContext : %s", functionName, err.Error())
 
@@ -32,11 +37,10 @@ func (u *UserRepoImpl) GetUserById(ctx context.Context, userId int)(*usersrespdt
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 
-	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		u.l.Debugf("[%s] = While Committing Transaction : %s", functionName, err.Error())
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 
 	return result, nil
-}	
+}

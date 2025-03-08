@@ -1,15 +1,9 @@
--- Create database
-CREATE DATABASE auth;
-
--- Switch to auth database (if needed)
-\c auth;
-
 -- Create schema (optional, if using namespacing)
 CREATE SCHEMA IF NOT EXISTS auth;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS auth.users (
-    user_id BIGSERIAL PRIMARY KEY,  -- SERIAL for auto-increment
+    user_id BIGSERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash CHAR(60) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -18,9 +12,8 @@ CREATE TABLE IF NOT EXISTS auth.users (
 
 -- Sessions table
 CREATE TABLE IF NOT EXISTS auth.sessions (
-    session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),  -- Use UUID for session IDs
+    refresh_token TEXT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    refresh_token TEXT NOT NULL,  -- Use TEXT for long strings
     is_revoked BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NOT NULL,
@@ -54,7 +47,7 @@ CREATE INDEX idx_sessions_cleanup ON auth.sessions (is_revoked, expires_at);
 CREATE INDEX idx_user_roles_role_id ON auth.user_roles (role_id);
 
 -- Insert default roles (PostgreSQL way)
-INSERT INTO auth.roles (role_name) VALUES 
+INSERT INTO auth.roles (role_name) VALUES
     ('admin'),
     ('user')
 ON CONFLICT (role_name) DO NOTHING;  -- Prevent duplicate entries

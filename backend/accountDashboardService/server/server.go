@@ -4,10 +4,10 @@ import (
 	"accountDashboardService/api/handler"
 	service "accountDashboardService/api/services"
 	config "accountDashboardService/configs"
-	"accountDashboardService/pkgs/database/mysql"
+	"accountDashboardService/pkgs/database/postgres"
 	"accountDashboardService/server/middleware"
 	authagent "accountDashboardService/stores/agents/auth_agent"
-	store "accountDashboardService/stores/mysql"
+	store "accountDashboardService/stores/postgres"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -44,7 +44,7 @@ func NewServer(cfg *config.Config, log logger.ILogger) *Server {
 
 func (s *Server) RegisterServer() {
 	// Initiate SQL Connection
-	dbConn := mysql.NewConnection(s.log)
+	dbConn := postgres.NewConnection(s.log)
 	if dbConn == nil {
 		s.log.Fatal("Expecting DB connection but received nil")
 	}

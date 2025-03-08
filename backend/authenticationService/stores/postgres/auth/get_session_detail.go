@@ -8,8 +8,8 @@ import (
 	"errors"
 )
 
-func (u *UserRepoImpl) GetUserByEmail(ctx context.Context, userEmail string) (*usersrespdto.UserResponse, error) {
-	functionName := "UserRepoImpl.GetUserByEmail"
+func (u *UserRepoImpl) GetSessionDetail(ctx context.Context, refreshToken string) (*usersrespdto.Session, error) {
+	functionName := "UserRepoImpl.GetSessionDetail"
 
 	tx, err := u.DB.BeginTx(ctx, nil)
 	if err != nil {
@@ -17,22 +17,26 @@ func (u *UserRepoImpl) GetUserByEmail(ctx context.Context, userEmail string) (*u
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 
-	result := new(usersrespdto.UserResponse)
+	result := new(usersrespdto.Session)
 
-	err = tx.QueryRowContext(ctx, QueryGetOneUserByEmail, userEmail).Scan(&result.UserID, &result.Role, &result.Email, &result.PasswordHash)
+	err = tx.QueryRowContext(ctx, QueryGetSessionDetail, refreshToken).Scan(
+		&result.UserID, 
+		&result.RefreshToken, 
+		&result.IsRevoked, 
+		&result.RefreshTokenExpiresAt,
+	)
 	if err != nil {
 		u.l.Debugf("[%s] = While Executing QueryRowContext : %s", functionName, err.Error())
 
 		if errors.Is(err, sql.ErrNoRows) {
 			tx.Rollback()
-			return nil, cError.GetError(cError.InvalidRequestError, errors.New("no user found"))
+			return nil, cError.GetError(cError.InvalidRequestError, errors.New("no session found"))
 		}
 
 		tx.Rollback()
 		return nil, cError.GetError(cError.InternalServerError, err)
 	}
 
-	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		u.l.Debugf("[%s] = While Committing Transaction : %s", functionName, err.Error())
 		return nil, cError.GetError(cError.InternalServerError, err)

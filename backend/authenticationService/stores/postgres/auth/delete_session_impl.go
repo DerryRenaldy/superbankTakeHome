@@ -4,7 +4,8 @@ import (
 	cError "authenticationService/pkgs/errors"
 	"context"
 	"errors"
-	"github.com/go-sql-driver/mysql"
+
+	"github.com/lib/pq"
 )
 
 func (u *UserRepoImpl) DeleteUserSession(ctx context.Context, refreshToken string) error {
@@ -20,18 +21,17 @@ func (u *UserRepoImpl) DeleteUserSession(ctx context.Context, refreshToken strin
 	if err != nil {
 		u.l.Debugf("[%s] = While Executing ExecContext : %s", functionName, err.Error())
 
-		var mysqlErr *mysql.MySQLError
+		var pgErr *pq.Error
 
-		if errors.As(err, &mysqlErr) {
-			tx.Rollback() // Rollback the transaction on error
+		if errors.As(err, &pgErr) {
+			tx.Rollback()
 			return err
 		}
 
-		tx.Rollback() // Rollback the transaction on error
+		tx.Rollback()
 		return cError.GetError(cError.InternalServerError, err)
 	}
 
-	// Commit the transaction
 	if err = tx.Commit(); err != nil {
 		u.l.Debugf("[%s] = While Committing Transaction : %s", functionName, err.Error())
 		return cError.GetError(cError.InternalServerError, err)

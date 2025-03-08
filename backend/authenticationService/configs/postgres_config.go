@@ -1,6 +1,6 @@
 package config
 
-type MySQLDatabase struct {
+type PostgresDatabase struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
 	Username string `mapstructure:"username"`

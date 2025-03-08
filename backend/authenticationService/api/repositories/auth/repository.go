@@ -3,7 +3,7 @@ package usersrepo
 import (
 	usersreqdto "authenticationService/dto/request/auth"
 	usersrespdto "authenticationService/dto/response/auth"
-	usersstore "authenticationService/stores/mysql/auth"
+	usersstore "authenticationService/stores/postgres/auth"
 	"context"
 )
 

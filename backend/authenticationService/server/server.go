@@ -6,12 +6,12 @@ import (
 	config "authenticationService/configs"
 	"authenticationService/constants"
 	utils "authenticationService/pkgs"
-	"authenticationService/pkgs/database/mysql"
+	"authenticationService/pkgs/database/postgres"
 	"authenticationService/pkgs/database/redis"
 	"authenticationService/pkgs/token"
 	"authenticationService/server/middleware"
 	authcachestore "authenticationService/stores/auth_cache"
-	usersrepo "authenticationService/stores/mysql/auth"
+	usersrepo "authenticationService/stores/postgres/auth"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -61,7 +61,7 @@ func (s *Server) RegisterServer() {
 	authRedisClient := authcachestore.New(redisClient, constants.RedisNamespace, s.cfg.Redis.Timeout)
 	
 	// Initiate SQL Connection
-	dbConn := mysql.NewConnection(s.log)
+	dbConn := postgres.NewConnection(s.log)
 	if dbConn == nil {
 		s.log.Fatal("Expecting DB connection but received nil")
 	}

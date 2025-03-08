@@ -1,22 +1,23 @@
-package mysql
+package postgres
 
 import (
 	config "authenticationService/configs"
 	"database/sql"
 	"fmt"
-	"github.com/DerryRenaldy/logger/logger"
-	_ "github.com/go-sql-driver/mysql"
 	"time"
+
+	"github.com/DerryRenaldy/logger/logger"
+	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 type Connection struct {
-	DBConfig config.MySQLDatabase
+	DBConfig config.PostgresDatabase
 	log      logger.ILogger
 }
 
 func NewConnection(l logger.ILogger) *Connection {
 	return &Connection{
-		DBConfig: config.MySQLDatabase{
+		DBConfig: config.PostgresDatabase{
 			Host:     config.Cfg.DB.Host,
 			Port:     config.Cfg.DB.Port,
 			Username: config.Cfg.DB.Username,
@@ -28,16 +29,21 @@ func NewConnection(l logger.ILogger) *Connection {
 }
 
 func (db *Connection) Connect() *sql.DB {
-	dnsAddress := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", db.DBConfig.Username, db.DBConfig.Password, db.DBConfig.Host, db.DBConfig.Port, db.DBConfig.DBName)
+	// PostgreSQL connection string format
+	dnsAddress := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&search_path=%s",
+    db.DBConfig.Username, db.DBConfig.Password, db.DBConfig.Host, db.DBConfig.Port, db.DBConfig.DBName, "auth")
 
-	open, err := sql.Open("mysql", dnsAddress)
+	fmt.Println(dnsAddress)
+
+	open, err := sql.Open("postgres", dnsAddress)
 	if err != nil {
 		db.log.Errorf("[ERR] Error while connecting... := %v\n", err)
 		return nil
 	}
 
+	// Retry connection until successful
 	for open.Ping() != nil {
-		db.log.Info("Attempting connect to DB...")
+		db.log.Info("Attempting to connect to DB...")
 		time.Sleep(5 * time.Second)
 	}
 

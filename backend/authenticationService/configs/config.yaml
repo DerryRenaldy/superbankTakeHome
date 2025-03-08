@@ -5,10 +5,10 @@ environment: dev
 log_level: debug
 
 host: localhost
-port: 33061
+port: 54321
 username: root
 password: root
-dbname: auth
+dbname: postgres
 
 redis:
   address: redis://localhost:6379/1

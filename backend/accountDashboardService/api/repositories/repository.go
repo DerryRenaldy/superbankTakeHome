@@ -3,7 +3,7 @@ package repository
 import (
 	reqdto "accountDashboardService/dto/request"
 	respdto "accountDashboardService/dto/response"
-	store "accountDashboardService/stores/mysql"
+	store "accountDashboardService/stores/postgres"
 	"context"
 )
 
